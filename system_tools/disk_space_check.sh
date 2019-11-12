@@ -7,7 +7,7 @@ hostName=$(hostname)
 
 for i in ${disk_space[@]:1};
     do
-        if [ $i -gt 25 ]; then
+        if [ $i -gt 85 ]; then
             echo 'There is a disk above 85% usage, please add space or remove unecessary files on' $hostName
         else
             continue
