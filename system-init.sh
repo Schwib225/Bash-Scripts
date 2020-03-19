@@ -36,25 +36,23 @@ yum -y update
 # Install reg packages
 for i in ${REG_PACKAGES[@]}; do yum install -y $i; done
 
-# configure ntp 
-vi /etc/ntpd.conf
-    #TODO comment out current server configs and replace with my own
-server x.x.x.x
+# Configure NTP Server 
+#TODO comment out current server configs and replace with my own
+for i in ${NTP_SERVERS[@]}; do echo "server $i" >> /etc/ntpd.conf
 systemctl restart ntpd
 
-# configure salt-minion
-vi /etc/salt/minion
-# uncomment master name - $SALT_MASTER
+# Configure Salt-minion
+sed -i 's/#master: salt/master: ${SALT_MASTER}/g' /etc/salt/minion
 systemctl restart salt-minion
 
 ### TODO: Automate AD integration
 ### Install AD integration packages
 for i in ${AD_PACKAGES[@]}; do yum install -y $i; done
+systemctl restart dbus
+systemctl restart realmd
+systemctl restart sssd      # will need to do this to apply settings ### TODO This still doesn't work properly and requires a reboot. some documentation i found says we need to run systemctl restart dbus to get it to work properly. will investigate further
 
-
-# Ensure the dns server is also the AD server address
-cat /etc/resolv.conf
-    # grep for DNS_SERVER, basically compare if DNS_SERVER and AD_SERVER match
+# TODO: Ensure the dns server is also the AD server address
 
 # If it is, attempt to join the realm
 realm join --user=administrator ${DOMAIN}         # will prompt you for a password currently
@@ -62,9 +60,7 @@ realm join --user=administrator ${DOMAIN}         # will prompt you for a passwo
 # need to ensure that realm is started - needed to reboot in order to allow joining - next attempt be sure to try and restart realmd - check for other services that might not be started (from the list of software installed above)
 
 # Modify this value - make sed edit - ensure the spaces are there
-sed 's/use_fully_qualified_names = True/use_fully_qualified_names = False/g' /etc/sssd/sssd.conf
-
-systemctl restart sssd      # will need to do this to apply settings
+sed -i 's/use_fully_qualified_names = True/use_fully_qualified_names = False/g' /etc/sssd/sssd.conf
 
 # Confirm
 realm list
