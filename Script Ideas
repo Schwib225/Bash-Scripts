@@ -1,0 +1,3 @@
+Tool for downloading rancher or kubernetes via shell
+
+Tool for passwords that generates it randomly, so the support user can give it to the person calling in. Should need to be reset at logon
