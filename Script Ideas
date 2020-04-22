@@ -3,3 +3,5 @@ Tool for downloading rancher or kubernetes via shell
 Tool for passwords that generates it randomly, so the support user can give it to the person calling in. Should need to be reset at logon
 
 Tool that allows you to view difference in incremental backups, also takes the incremental backups, with fulls as another option
+
+Tool to view user login attempts, uptime, whos logged in, other generic stuff just to mess around -- do this in a menu
