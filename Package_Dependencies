@@ -1,0 +1,7 @@
+# Centos
+
+# this will list dependencies
+yum deplist $Package | awk '/provider:/ {print $2}' | sort -u
+
+# Install the dependency packages
+yum deplist $Package | awk '/provider:/ {print $2}' | sort -u | xargs yum -y install
