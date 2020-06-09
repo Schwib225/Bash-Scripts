@@ -1,4 +1,6 @@
 #!/bin/bash
+# TODO prompt user for input on each of these static variables, then test to see if the localhost can reach the input (hostname or ip address) if it can't, then cycle back to ask the user to try again
+
 ##TODO = build static variables to be defined ata beginning of script so everything will run without other manual intervention
 PROXY_SERVER=mul-proxy
 DNS_SERVERS=(10.57.176.28 10.57.176.29)
