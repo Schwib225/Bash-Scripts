@@ -67,6 +67,10 @@ sed -i 's\fallback_homedir = /home/%u@%d\fallback_homedir = /home/%u\g' /etc/sss
 # Confirm
 realm list
 
+# Add sudoers group in AD to /etc/sudoers.d/ (or another group) so domain admins can sudo on linux systems
+echo "%sudoers    ALL=(ALL)       ALL" >> /etc/sudoers.d/sudoers
+
+
 ## If i ever need it, how to leave the realm ##
 # realm leave ${DOMAIN}
 
