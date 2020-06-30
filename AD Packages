@@ -27,6 +27,10 @@ sudo systemctl restart sssd
 #### Centos and RHEL 7 ########
 
 ### Install AD integration packages
+
+AD_PACKAGES=(sssd realmd oddjob oddjob-mkhomedir adcli samba-common samba-common-tools krb5-workstation openldap-clients policycoreutils-python) # AD packages
+AD_SERVER=(x.x.x.x x.x.x.x)
+
 for i in ${AD_PACKAGES[@]}; do yum install -y $i; done
 systemctl restart dbus
 systemctl restart realmd
