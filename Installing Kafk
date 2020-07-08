@@ -1,0 +1,63 @@
+# Ubuntu 18.04 - https://www.digitalocean.com/community/tutorials/how-to-install-apache-kafka-on-ubuntu-18-04 
+
+  # Create Kafka user
+  
+    sudo useradd kafka -m
+    sudo passwd kafka
+    sudo adduser kafka sudo                                                         # add kafka to sudo grp
+    su -l kafka
+    
+  # Download and Extract Binaries
+  
+    mkdir ~/Downloads
+    curl "https://www.apache.org/dist/kafka/2.1.1/kafka_2.11-2.1.1.tgz" -o ~/Downloads/kafka.tgz
+    mkdir ~/kafka && cd ~/kafka
+    tar -xvzf ~/Downloads/kafka.tgz --strip 1
+    
+  # Configuring the Kafka Server
+  
+    vi ~/kafka/config/server.properties
+      delete.topic.enable = true
+      
+  # Creating systemd unit files and starting kafka server
+  
+    sudo vi /etc/systemd/system/zookeeper.service
+      [Unit]
+      Requires=network.target remote-fs.target
+      After=network.target remote-fs.target
+
+      [Service]
+      Type=simple
+      User=kafka
+      ExecStart=/home/kafka/kafka/bin/zookeeper-server-start.sh /home/kafka/kafka/config/zookeeper.properties
+      ExecStop=/home/kafka/kafka/bin/zookeeper-server-stop.sh
+      Restart=on-abnormal
+
+      [Install]
+      WantedBy=multi-user.target
+      
+    sudo vi /etc/systemd/system/kafka.service
+      [Unit]
+      Requires=zookeeper.service
+      After=zookeeper.service
+
+      [Service]
+      Type=simple
+      User=kafka
+      ExecStart=/bin/sh -c '/home/kafka/kafka/bin/kafka-server-start.sh /home/kafka/kafka/config/server.properties > /home/kafka/kafka/kafka.log 2>&1'
+      ExecStop=/home/kafka/kafka/bin/kafka-server-stop.sh
+      Restart=on-abnormal
+
+      [Install]
+      WantedBy=multi-user.target
+
+        sudo systemctl enable kafka --now
+        sudo journalctl -u kafka                                            # Verify the service started properly
+        
+    # Test the installation 
+    
+      ~/kafka/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic TutorialTopic
+      echo "Hello, World" | ~/kafka/bin/kafka-console-producer.sh --broker-list localhost:9092 --topic TutorialTopic > /dev/null
+      ~/kafka/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic TutorialTopic --from-beginning
+      
+      # you should see hello world in your terminal
