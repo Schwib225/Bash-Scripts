@@ -1,38 +1,58 @@
 Ubuntu / Debian: - https://computingforgeeks.com/join-ubuntu-debian-to-active-directory-ad-domain/
-sudo apt update
-# get rid of systemd-resolved because it messes with dns config 
-sudo systemctl disable systemd-resolved
-sudo systemctl stop systemd-resolved
-# remove symlink and build new resolv.conf file
-sudo unlink /etc/resolv.conf
-sudo vim /etc/resolv.conf
 
-sudo apt -y install realmd libnss-sss libpam-sss sssd sssd-tools adcli samba-common-bin oddjob oddjob-mkhomedir packagekit
-sudo realm discover example.com
-$ sudo realm join -U Administrator example.com
-Password for Administrator:
-realm list                                                                        # verify its added properly
+# Start by updating the server 
+
+        sudo apt update
+        
+# get rid of systemd-resolved because it messes with dns config 
+
+        sudo systemctl disable systemd-resolved
+        sudo systemctl stop systemd-resolved
+        
+# remove symlink and build new resolv.conf file
+
+        sudo unlink /etc/resolv.conf
+        sudo vim /etc/resolv.conf
+
+# Add new installation source for package
+
+        sudo tee -a /etc/apt/sources.list <<EOF
+        deb http://us.archive.ubuntu.com/ubuntu/ bionic universe
+        deb http://us.archive.ubuntu.com/ubuntu/ bionic-updates universe
+        EOF
+
+# Download packages and create files
+
+        sudo apt -y install realmd libnss-sss libpam-sss sssd sssd-tools adcli samba-common-bin oddjob oddjob-mkhomedir packagekit
+        sudo realm discover example.com
+        sudo realm join -U Administrator example.com
+
+
+        realm list                                                                        # verify its added properly
 
 # This command below will create home dirs, this is done automatically in centos and rhel but not in debian or ubuntu
 
-sudo bash -c "cat > /usr/share/pam-configs/mkhomedir" <<EOF
-Name: activate mkhomedir
-Default: yes
-Priority: 900
-Session-Type: Additional
-Session:
-        required                        pam_mkhomedir.so umask=0022 skel=/etc/skel
-EOF
+        sudo bash -c "cat > /usr/share/pam-configs/mkhomedir" <<EOF
+        Name: activate mkhomedir
+        Default: yes
+        Priority: 900
+        Session-Type: Additional
+        Session:
+                required                        pam_mkhomedir.so umask=0022 skel=/etc/skel
+        EOF
 
-sudo pam-auth-update
+        sudo pam-auth-update
+        
 # Mod SSSD files to have proper settings
-sed -i 's/use_fully_qualified_names = True/use_fully_qualified_names = False/g' /etc/sssd/sssd.conf
-sed -i 's\fallback_homedir = /home/%u@%d\fallback_homedir = /home/%u\g' /etc/sssd/sssd.conf
-sudo systemctl restart sssd
+
+        sed -i 's/use_fully_qualified_names = True/use_fully_qualified_names = False/g' /etc/sssd/sssd.conf
+        sed -i 's\fallback_homedir = /home/%u@%d\fallback_homedir = /home/%u\g' /etc/sssd/sssd.conf
+        sudo systemctl restart sssd
 
 # Add sudoers group 
-vi /etc/sudoers.d/sudoers
-        %sudoers ALL=(ALL) ALL
+
+        vi /etc/sudoers.d/sudoers
+                %sudoers ALL=(ALL) ALL
 
 # Custom group usage can be found at above link, uses realm permit command 
 
@@ -41,27 +61,29 @@ vi /etc/sudoers.d/sudoers
 
 ### Install AD integration packages
 
-AD_PACKAGES=(sssd realmd oddjob oddjob-mkhomedir adcli samba-common samba-common-tools krb5-workstation openldap-clients policycoreutils-python) # AD packages
-AD_SERVER=(x.x.x.x x.x.x.x)
+        AD_PACKAGES=(sssd realmd oddjob oddjob-mkhomedir adcli samba-common samba-common-tools krb5-workstation openldap-clients policycoreutils-python) # AD packages
+        AD_SERVER=(x.x.x.x x.x.x.x)
 
-for i in ${AD_PACKAGES[@]}; do yum install -y $i; done
-systemctl restart dbus
-systemctl restart realmd
-systemctl restart sssd      # will need to do this to apply settings ### TODO This still doesn't work properly and requires a reboot. some documentation i found says we need to run systemctl restart dbus to get it to work properly. will investigate further
+        for i in ${AD_PACKAGES[@]}; do yum install -y $i; done
+        systemctl restart dbus
+        systemctl restart realmd
+        systemctl restart sssd      # will need to do this to apply settings ### TODO This still doesn't work properly and requires a reboot. some documentation i found says we need to run systemctl restart dbus to get it to work properly. will investigate further
 
 # TODO: Ensure the dns server is also the AD server address
 
-# If it is, attempt to join the realm
-realm join --user=administrator ${DOMAIN}         # will prompt you for a password currently
+        # If it is, attempt to join the realm
+        realm join --user=administrator ${DOMAIN}         # will prompt you for a password currently
 
 # need to ensure that realm is started - needed to reboot in order to allow joining - next attempt be sure to try and restart realmd - check for other services that might not be started (from the list of software installed above)
 
 # Modify these values for sssd so we don't need fqdn on everything 
-sed -i 's/use_fully_qualified_names = True/use_fully_qualified_names = False/g' /etc/sssd/sssd.conf
-sed -i 's\fallback_homedir = /home/%u@%d\fallback_homedir = /home/%u\g' /etc/sssd/sssd.conf
+
+        sed -i 's/use_fully_qualified_names = True/use_fully_qualified_names = False/g' /etc/sssd/sssd.conf
+        sed -i 's\fallback_homedir = /home/%u@%d\fallback_homedir = /home/%u\g' /etc/sssd/sssd.conf
 
 # Confirm
-realm list
+        realm list
 
 # Add sudoers group in AD to /etc/sudoers.d/ (or another group) so domain admins can sudo on linux systems
-echo "%sudoers    ALL=(ALL)       ALL" >> /etc/sudoers.d/sudoers
+
+        echo "%sudoers    ALL=(ALL)       ALL" >> /etc/sudoers.d/sudoers
