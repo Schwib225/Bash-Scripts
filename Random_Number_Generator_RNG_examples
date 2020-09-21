@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# To generate random 32 character alphanumeric string (upper and lowercase) 
+NEW_UUID=$(cat /dev/urandom | tr -dc 'a-zA-Z0-0' | fold -w 32 | head -n 1)
+
+# Generate random 32 character alphanumeric string (lowercase only)
+cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1
+
+# Generate random number between 0 and 9
+cat /dev/urandom | tr -dc '0-9' | fold -w 256 | head -n 1 | head --bytes 1
+
+# Generate random number between 0 and 99
+
+NUMBER=$(cat /dev/urandom | tr -dc '0-9' | fold -w 256 | head -n 1 | sed -e 's/^0*//' | head --bytes 2)
+if ["$NUMBER" == "" ]; then
+  NUMBER=0
+fi
+
+# Generate random number between 0 and 999
+NUMBER=$(cat /dev/urandom | tr -dc '0-9' | fold -w 256 | head -n 1 | sed -e 's/^0*//' | head --bytes 3)
+if ["$NUMBER" == "" ]; then
+  NUMBER=0
+fi
