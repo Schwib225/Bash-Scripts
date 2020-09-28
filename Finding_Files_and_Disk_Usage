@@ -1,19 +1,25 @@
 Using DU to find file usage
 
-du -h /var/log | sort -rn     # this will sort the output from smallest to largest
+  du -h /var/log | sort -rn     # this will sort the output from smallest to largest
 
 
 # Using find in general to find filenames
 
-find <path> <value>
+  find <path> <value>
 
-find / -name "*logzilla*"     # will find all files with keyword logzilla in the root file system
+  find / -name "*logzilla*"     # will find all files with keyword logzilla in the root file system
 
-# Using find to find files of a specific size
+  # Using find to find files of a specific size
 
-find . -size +1G              # find all files in current dir with a size of 1 gig or higher
+  find . -size +1G              # find all files in current dir with a size of 1 gig or higher
 
-find . -size -10k             # find all files less than 10k in the current dir
+  find . -size -10k             # find all files less than 10k in the current dir
 
-find . -size 10M -size -20M      # files b/w 10 and 20 mb in size
+  find . -size 10M -size -20M      # files b/w 10 and 20 mb in size
 
+
+# Finding a directory by name
+
+  find </where/to/look> -type d -name "dirname"
+  
+  find / -type d -name "istio*"
