@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Script to download syslog and replace default files with customized files for Dish Network MUL monitoring
+# Script to download syslog and replace default files with customized files for monitoring
 # Last Modified 6/11/19 by Michael Schweigert
 
 currentUser=$(whoami)                                                   # Check current user, must be root for this script
 package=syslog-ng                                                       # Enter package name here
-repository=10.73.11.85                                                  # Enter a servername or file location here 
+repository=x.x.x.x                                                      # Enter a servername or file location here 
 syslogConfigLocation=/etc/syslog-ng/                                    # Enter the temp location or repo file location
 syslogConfigFile=syslog-ng.conf                                         # Enter the filename we are moving over
 osName=$(grep -m 1 'ID=' /etc/os-release | cut -d= -f2)                 # need to remove the quotes and limit to only the first line or find another file to pull from
