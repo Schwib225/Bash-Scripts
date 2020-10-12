@@ -21,3 +21,8 @@ NUMBER=$(cat /dev/urandom | tr -dc '0-9' | fold -w 256 | head -n 1 | sed -e 's/^
 if ["$NUMBER" == "" ]; then
   NUMBER=0
 fi
+
+
+# Using OpenSSL - https://www.openssl.org/docs/man1.0.2/man1/rand.html
+
+openssl rand -base64 128
