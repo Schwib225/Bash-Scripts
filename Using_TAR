@@ -1,0 +1,8 @@
+Zipping files with gzip
+
+  tar -cvzf <name of tarball>.tgz /path/to/source/folder
+  
+Extracting files
+
+  tar -xzf <filename>.tar.gz
+
